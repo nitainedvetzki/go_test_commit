@@ -5,43 +5,26 @@ import (
 	"fmt"
 	"log"
 
-	crossplaneClient "github.com/crossplane/crossplane-runtime/pkg/client"
-	"github.com/crossplane/crossplane/apis/stacks/v1alpha1"
-	"k8s.io/client-go/rest"
+	"github.com/dapr/dapr/pkg/client"
 )
 
 func main() {
-	// Create a Kubernetes REST client configuration
-	config, err := rest.InClusterConfig()
+	// Initialize Dapr client
+	daprClient, err := client.NewClient()
 	if err != nil {
-		log.Fatalf("Error creating in-cluster config: %v", err)
+		log.Fatalf("Error initializing Dapr client: %v", err)
 	}
+	defer daprClient.Close()
 
-	// Create a Crossplane client
-	crossplaneClient, err := crossplaneClient.NewClient(config, 0)
+	// Publish a message to a Dapr topic
+	topic := "my-topic"
+	data := []byte("Hello, Dapr!")
+
+	err = daprClient.PublishEvent(context.Background(), topic, "myOperation", data)
 	if err != nil {
-		log.Fatalf("Error creating Crossplane client: %v", err)
+		log.Fatalf("Error publishing message: %v", err)
 	}
 
-	// Create a MySQL resource claim object
-	mysqlClaim := &v1alpha1.MySQLInstanceClaim{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "example-mysql-claim",
-			Namespace: "default",
-		},
-		Spec: v1alpha1.MySQLInstanceClaimSpec{
-			ClassSelector: &v1alpha1.ClassSelector{
-				Name: "standard-mysql-instance", // Replace with the name of the MySQL class you want to use
-			},
-		},
-	}
-
-	// Create or update the MySQL resource claim
-	err = crossplaneClient.Create(context.Background(), mysqlClaim)
-	if err != nil {
-		log.Fatalf("Error creating MySQL resource claim: %v", err)
-	}
-
-	fmt.Println("MySQL resource claim created successfully.")
+	fmt.Println("Message published successfully.")
 }
 
