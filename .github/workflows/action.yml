@@ -1,0 +1,24 @@
+name: Golang Vulnerability Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  go_vulncheck:
+    name: Golang Vulncheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+
+      - name: Golang Vulncheck
+        uses: Templum/govulncheck-action@v1.0.0
