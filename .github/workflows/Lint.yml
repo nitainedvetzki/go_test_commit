@@ -1,9 +1,13 @@
 name: Go Lint
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
-    paths:
-      - main.go
+    branches:
+      - main
+
 
 jobs:
   lint:
